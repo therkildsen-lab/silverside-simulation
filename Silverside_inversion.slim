@@ -1,0 +1,111 @@
+// Silverside_inversion.slim
+// Áki Jarl Láruson
+// Dec. 04 2020
+// Code which simulates two highly connected populations of Atlantic Silverside fish with inversions of different ages, and varying recombination rates in the neutral background genome 
+
+initialize() {
+	defineConstant("C_num", 6);							// number of chromosomes
+	defineConstant("C_lengths", rep(139000, C_num));	// lengths for each chromosome
+	initializeMutationRate(0);
+	//initializeMutationType("m1", 0.5, "f", 0.0);
+	initializeMutationType("m2", 0.5, "f", 0.0);  // inversion marker
+	m2.color = "red";
+	initializeGenomicElementType("g1", m2, 1.0);
+	//initializeGenomicElement(g1, 0, 99999);
+	initializeGenomicElement(g1, 0, sum(C_lengths[0:(C_num - 1)])-1);
+	
+	//initializeRecombinationRate(1e-6);
+	//defineConstant("R", 1e-5);
+	//rates = c(rep(c(R, 0.5), C_num-1), R);
+	rates = c(1e-5, 0.5, 1e-5, 0.5, 1e-5, 0.5, 1e-5, 0.5, 4.676e-6, 0.5, 1.27e-5);
+	ends = repEach(cumSum(C_lengths), 2);
+	ends = ends[0:(length(ends) - 2)];
+	ends = ends - c(rep(c(1,0), C_num-1), 1);
+	initializeRecombinationRate(rates, ends);
+	
+	initializeSex("A");
+	initializeTreeSeq();
+}
+1 {
+	sim.addSubpop("p1", 5000);
+	sim.addSubpop("p2", 5000);
+	p1.setMigrationRates(p2, 0.1);
+	p2.setMigrationRates(p1, 0.1);
+}
+
+1 late() {
+	// give half the population the inversion
+	p1.genomes.addNewDrawnMutation(m2, 34749);
+}
+
+12500 late() {
+	// give half the population the inversion
+	p1.genomes.addNewDrawnMutation(m2, 173749);
+}
+
+25000 late() {
+	// give half the population the inversion
+	p1.genomes.addNewDrawnMutation(m2, 312749);
+}
+
+//1:9999 late() {
+//	if (sim.generation % 50 != 0)
+//		return;
+//	
+//	// assess the prevalence of the inversion
+//	pScr = "sum(applyValue.genomes.containsMarkerMutation(m2, 34749));";
+//	p = sapply(p1.individuals, pScr);
+//	p__ = sum(p == 0);
+//	pI_ = sum(p == 1);
+//	pII = sum(p == 2);
+//	cat("Generation " + format("%4d", sim.generation) + ": ");
+//	cat(format("%3d", p__) + " --   ");
+//	cat(format("%3d", pI_) + " I-   ");
+//	cat(format("%3d", pII) + " II\n");
+//	
+//	if (p__ == 0) stop("Inversion fixed!");
+//	if (pII == 0) stop("Inversion lost!");
+//}
+//fitness(m2) {
+//	// fitness of the inversion is frequency-dependent
+//	f = sim.mutationFrequencies(NULL, mut);
+//	return 1.0 - (f - 0.5) * 0.2;
+//}
+
+recombination() {
+	if (genome1.containsMarkerMutation(m2, 34749) ==
+		genome2.containsMarkerMutation(m2, 34749))
+		return F;
+	
+	inInv = (breakpoints > 34749) & (breakpoints < 104249);
+	if (!any(inInv))
+		return F;
+	
+	breakpoints = breakpoints[!inInv];
+	return T;
+	
+	if (genome1.containsMarkerMutation(m2, 173749) ==
+		genome2.containsMarkerMutation(m2, 173749))
+		return F;
+	
+	inInv = (breakpoints > 173749) & (breakpoints < 243249);
+	if (!any(inInv))
+		return F;
+	
+	breakpoints = breakpoints[!inInv];
+	return T;
+	
+	if (genome1.containsMarkerMutation(m2, 312749) ==
+		genome2.containsMarkerMutation(m2, 312749))
+		return F;
+	
+	inInv = (breakpoints > 312749) & (breakpoints < 382249);
+	if (!any(inInv))
+		return F;
+	
+	breakpoints = breakpoints[!inInv];
+	return T;
+}
+9999 late() {
+	sim.treeSeqOutput(paste(getSeed(),"_SilverSide_Inversion.tree", sep=""));
+}
