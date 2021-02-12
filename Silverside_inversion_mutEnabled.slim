@@ -1,0 +1,155 @@
+// Silverside_inversion.slim
+// Áki Jarl Láruson
+// Dec. 04 2020
+// Code which simulates two highly connected populations of Atlantic Silverside fish with inversions of different ages, and varying recombination rates in the neutral background genome 
+
+initialize() {
+	defineConstant("C_num", 6);							// number of chromosomes
+	defineConstant("C_lengths", rep(139000, C_num));	// lengths for each chromosome
+	initializeMutationRate(1e-7);
+	initializeMutationType("m1", 0.5, "f", 0.0);  // neutral mutations
+	initializeMutationType("m2", 0.5, "f", 0.0);  // inversion marker
+	initializeMutationType("m3", 0.5, "f", 0.0);  // inversion marker
+	initializeMutationType("m4", 0.5, "f", 0.0);  // inversion marker
+	m2.color = "red";
+	m3.color = "blue";
+	m4.color = "green";
+	initializeGenomicElementType("g1", c(m1,m2,m3,m4), c(1.0,0,0,0));
+	initializeGenomicElement(g1, 0, sum(C_lengths[0:(C_num - 1)])-1);
+	m2.convertToSubstitution = F;
+	m3.convertToSubstitution = F;
+	m4.convertToSubstitution = F;
+	rates = c(1e-5, 0.5, 1e-5, 0.5, 1e-5, 0.5, 1e-5, 0.5, 1e-6, 0.5, 1e-4);
+	ends = repEach(cumSum(C_lengths), 2);
+	ends = ends[0:(length(ends) - 2)];
+	ends = ends - c(rep(c(1,0), C_num-1), 1);
+	initializeRecombinationRate(rates, ends);
+	defineConstant("Invers_1", 20000);
+	defineConstant("Invers_2", 32500);
+	defineConstant("Invers_3", 20000);
+	defineConstant("End_sim", 20000);
+	initializeSex("A");
+	//initializeTreeSeq();
+}
+1 {
+	sim.addSubpop("p1", 5000);
+	sim.addSubpop("p2", 5000);
+	p1.setMigrationRates(p2, 0.001);
+	p2.setMigrationRates(p1, 0.001);
+}
+
+1 late() {
+	// give half the population the first inversion
+	p1.genomes.addNewDrawnMutation(m2, 34749);
+}
+1: late() {
+	if (sim.generation % 100 == 0){
+		mut = sim.mutationsOfType(m2);
+		freq1 = sum(sim.mutationFrequencies(p1,sortBy(unique(c(sim.subpopulations.genomes.mutationsOfType(m2))), "position")));
+		//print(paste("freq1:",freq1));
+		freq2 = sum(sim.mutationFrequencies(p2,sortBy(unique(c(sim.subpopulations.genomes.mutationsOfType(m2))), "position")));
+		//print(paste("freq2:",freq2));
+		//print(paste("mut:",mut));
+		if (freq1 < 0.95)	{
+			//ind = p1.individuals[!p1.individuals.containsMutations(mut)];
+			p1.genomes.removeMutations(mut);
+			p2.genomes.removeMutations(mut);
+			p1.genomes.addNewDrawnMutation(m2, 34749);
+		}
+		if (freq2 > 0.05)	{
+			//ind = p2.individuals[p2.individuals.containsMutations(mut)];
+			p2.genomes.removeMutations(mut);
+		}
+	}
+}
+
+12500 late() {
+	// give half the population the second inversion
+	p1.genomes.addNewDrawnMutation(m3, 173749);
+}
+
+12500: late() {
+	if (sim.generation % 100 == 0){
+		mut = sim.mutationsOfType(m3);
+		freq1 = sim.mutationFrequencies(p1,sortBy(unique(c(sim.subpopulations.genomes.mutationsOfType(m3))), "position"));
+		freq2 = sim.mutationFrequencies(p2,sortBy(unique(c(sim.subpopulations.genomes.mutationsOfType(m3))), "position"));
+		if (freq1 < 0.95)	{
+			//ind = p1.individuals[!p1.individuals.containsMutations(mut)];
+			p1.genomes.removeMutations(mut);
+			p2.genomes.removeMutations(mut);
+			p1.genomes.addNewDrawnMutation(m3, 173749);
+		}
+		if (freq2 > 0.05)	{
+			//ind = p2.individuals[p2.individuals.containsMutations(mut)];
+			p2.genomes.removeMutations(mut);
+		}
+	}
+}
+
+24000 late() {
+	// give half the population the third inversion
+	p1.genomes.addNewDrawnMutation(m4, 312749);
+}
+
+24000: late() {
+	if (sim.generation % 100 == 0){
+		mut = sim.mutationsOfType(m4);
+		freq1 = sim.mutationFrequencies(p1,sortBy(unique(c(sim.subpopulations.genomes.mutationsOfType(m4))), "position"));
+		freq2 = sim.mutationFrequencies(p2,sortBy(unique(c(sim.subpopulations.genomes.mutationsOfType(m4))), "position"));
+		if (freq1 < 0.95)	{
+			//ind = p1.individuals[!p1.individuals.containsMutations(mut)];
+			p1.genomes.removeMutations(mut);
+			p2.genomes.removeMutations(mut);
+			p1.genomes.addNewDrawnMutation(m4, 312749);
+		}
+		if (freq2 > 0.05)	{
+			//ind = p2.individuals[p2.individuals.containsMutations(mut)];
+			p2.genomes.removeMutations(mut);
+		}
+	}
+}
+
+recombination() {
+	if (genome1.containsMarkerMutation(m2, 34749) ==
+		genome2.containsMarkerMutation(m2, 34749))
+		return F;
+	
+	inInv = (breakpoints > 34749) & (breakpoints < 104249);
+	if (!any(inInv))
+		return F;
+	
+	breakpoints = breakpoints[!inInv];
+	return T;
+	
+	if (genome1.containsMarkerMutation(m3, 173749) ==
+		genome2.containsMarkerMutation(m3, 173749))
+		return F;
+	
+	inInv = (breakpoints > 173749) & (breakpoints < 243249);
+	if (!any(inInv))
+		return F;
+	
+	breakpoints = breakpoints[!inInv];
+	return T;
+	
+	if (genome1.containsMarkerMutation(m4, 312749) ==
+		genome2.containsMarkerMutation(m4, 312749))
+		return F;
+	
+	inInv = (breakpoints > 312749) & (breakpoints < 382249);
+	if (!any(inInv))
+		return F;
+	
+	breakpoints = breakpoints[!inInv];
+	return T;
+}
+25000 late() {
+	//one = sample(p1.individuals, 100, F);
+	one = p1.individuals;
+	//two = sample(p2.individuals, 100, F);
+	two = p2.individuals;
+	//sim.treeSeqOutput(paste(getSeed(),"_SilverSide_Inversion.tree", sep=""));
+	one.genomes.outputVCF(paste(getSeed(),"_P1_SilverSide_Inversion.vcf", sep=""));
+	two.genomes.outputVCF(paste(getSeed(),"_P2_SilverSide_Inversion.vcf", sep=""));
+
+}

@@ -5,19 +5,23 @@ require(OutFLANK)
 require(qqman)
 require(RColorBrewer)
 
-ssvcf <- read.vcfR("silverside_sim_1614460993787_2.vcf")
-geno <- ssvcf@gt[,-1] # Remove 1st column, which is 'Format'
-position <- as.numeric(getPOS(ssvcf)) # Positions in bp
+ssvcf <- read.vcfR("1614591178478_SilverSide_Inversion.vcf")
+
+ssvcf_clean <- ssvcf[-grep("MT=[2-4]",ssvcf@fix[,8])]
+getPOS(ssvcf[grep("MT=[2-4]",ssvcf@fix[,8])])
+
+geno <- ssvcf_clean@gt[,-1] # Remove 1st column, which is 'Format'
+position <- as.numeric(getPOS(ssvcf_clean)) # Positions in bp
 
 for(i in 1:length(position)){
-  if(position[i]>34748 & position[i]<104250){
-    position[i]<-104249-position[i]+34749
+  if(position[i]>34750 & position[i]<104250){
+    position[i]<-104250-position[i]+34750
   }
-  if(position[i]>173748 & position[i]<243250){
-    position[i]<-243249-position[i]+173749
+  if(position[i]>173750 & position[i]<243250){
+    position[i]<-243250-position[i]+173750
       }
-  if(position[i]>312748 & position[i]<382250){
-    position[i]<-382249-position[i]+312749
+  if(position[i]>312750 & position[i]<382250){
+    position[i]<-382250-position[i]+312750
       }
 }
 
@@ -31,10 +35,12 @@ colnames(Gt)<-paste("M",position,sep="")
 
 PopsALL <- NULL
 for(j in rep(1:2)){
-  for(i in rep(j,5000)){
+  for(i in rep(j,100)){
     PopsALL <- c(PopsALL,i)
   }
 }
+
+
 
 position_inv<-NULL
 position_scaled<-NULL
