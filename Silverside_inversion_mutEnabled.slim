@@ -143,6 +143,14 @@ recombination() {
 	breakpoints = breakpoints[!inInv];
 	return T;
 }
+
+1: late() {
+	if (sim.generation % 500 == 0){
+		cat("Generations: " + sim.generation + "\n");
+	}
+}
+
+
 25000 late() {
 	//one = sample(p1.individuals, 100, F);
 	one = p1.individuals;

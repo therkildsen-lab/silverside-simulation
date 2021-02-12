@@ -8,22 +8,21 @@ require(RColorBrewer)
 ssvcf <- read.vcfR("1614591178478_SilverSide_Inversion.vcf")
 
 ssvcf_clean <- ssvcf[-grep("MT=[2-4]",ssvcf@fix[,8])]
-getPOS(ssvcf[grep("MT=[2-4]",ssvcf@fix[,8])])
 
 geno <- ssvcf_clean@gt[,-1] # Remove 1st column, which is 'Format'
 position <- as.numeric(getPOS(ssvcf_clean)) # Positions in bp
 
-for(i in 1:length(position)){
-  if(position[i]>34750 & position[i]<104250){
-    position[i]<-104250-position[i]+34750
-  }
-  if(position[i]>173750 & position[i]<243250){
-    position[i]<-243250-position[i]+173750
-      }
-  if(position[i]>312750 & position[i]<382250){
-    position[i]<-382250-position[i]+312750
-      }
-}
+# for(i in 1:length(position)){
+#   if(position[i]>34750 & position[i]<104250){
+#     position[i]<-104250-position[i]+34750
+#   }
+#   if(position[i]>173750 & position[i]<243250){
+#     position[i]<-243250-position[i]+173750
+#       }
+#   if(position[i]>312750 & position[i]<382250){
+#     position[i]<-382250-position[i]+312750
+#       }
+# }
 
 G1 <- matrix(NA, nrow = nrow(geno), ncol = ncol(geno))
 G1[geno %in% c("0/0", "0|0")] <- 0
@@ -39,8 +38,6 @@ for(j in rep(1:2)){
     PopsALL <- c(PopsALL,i)
   }
 }
-
-
 
 position_inv<-NULL
 position_scaled<-NULL
@@ -130,13 +127,13 @@ MakeDiploidFSTMat_2<-function(SNPmat,locusNames,popNames){
 }
 
 Pfst<-MakeDiploidFSTMat_2(SNPmat = Gtf, locusNames = colnames(Gtf), popNames = PopsALL)
-max(Pfst$FST, na.rm=T)
-min(Pfst$FST, na.rm = T)
+(Max <- max(Pfst$FST, na.rm=T))
+(Min <- min(Pfst$FST, na.rm = T))
 CHR_data <- data.frame (SNP = Pfst$LocusName , CHR=position_inv, BP= position_scaled, P=Pfst$FST)
 # Plot !
-manhattan(CHR_data , ylim=c(-0.00011,0.3), suggestiveline = F, genomewideline = F , logp=F, col=brewer.pal(5, "Set2") , main="Silverside simulation\nm=0.001, r=(1e-5)x4, 1e-6, 1e-4", ylab=expression(paste("F"[ST])))
-lines(x=c(34749,104249),y=c(0,0),col="red")
-lines(x=c(173749,243249),y=c(0,0),col="red")
-lines(x=c(312749,382249),y=c(0,0),col="red")
-
+manhattan(CHR_data , ylim=c(Min-(Min*0.1),Max+(Max*0.1)), suggestiveline = F, genomewideline = F , logp=F, col=brewer.pal(5, "Set2") , main="Silverside simulation\nm=0.001, r=(1e-5)x4, 1e-6, 1e-4", ylab=expression(paste("F"[ST])))
+lines(x=c(34750,104250),y=c(Min-(Min*0.1),Min-(Min*0.1)),col="red",lwd=2)
+lines(x=c(173750,243250),y=c(Min-(Min*0.1),Min-(Min*0.1)),col="red",lwd=2)
+lines(x=c(312750,382250),y=c(Min-(Min*0.1),Min-(Min*0.1)),col="red",lwd=2)
+abline(v=c(34750,104250,173750,243250,312750,382250), col="red")
  
