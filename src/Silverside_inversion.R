@@ -5,7 +5,7 @@ require(OutFLANK)
 require(qqman)
 require(RColorBrewer)
 
-ssvcf <- read.vcfR("1614591178478_SilverSide_Inversion.vcf")
+ssvcf <- read.vcfR("1616193746669_SilverSide_Inversion.vcf.gz")
 
 ssvcf_clean <- ssvcf[-grep("MT=[2-4]",ssvcf@fix[,8])]
 
@@ -34,7 +34,7 @@ colnames(Gt)<-paste("M",position,sep="")
 
 PopsALL <- NULL
 for(j in rep(1:2)){
-  for(i in rep(j,100)){
+  for(i in rep(j,5000)){
     PopsALL <- c(PopsALL,i)
   }
 }
@@ -131,7 +131,7 @@ Pfst<-MakeDiploidFSTMat_2(SNPmat = Gtf, locusNames = colnames(Gtf), popNames = P
 (Min <- min(Pfst$FST, na.rm = T))
 CHR_data <- data.frame (SNP = Pfst$LocusName , CHR=position_inv, BP= position_scaled, P=Pfst$FST)
 # Plot !
-manhattan(CHR_data , ylim=c(Min-(Min*0.1),Max+(Max*0.1)), suggestiveline = F, genomewideline = F , logp=F, col=brewer.pal(5, "Set2") , main="Silverside simulation\nm=0.001, r=(1e-5)x4, 1e-6, 1e-4", ylab=expression(paste("F"[ST])))
+manhattan(CHR_data , ylim=c(Min-(Min*0.1),Max+(Max*0.1)), suggestiveline = F, genomewideline = F , logp=F, col=brewer.pal(5, "Set2") , main="Silverside simulation\nm=0.1, r=(1e-5)x4, 1e-6, 1e-4", ylab=expression(paste("F"[ST])))
 lines(x=c(34750,104250),y=c(Min-(Min*0.1),Min-(Min*0.1)),col="red",lwd=2)
 lines(x=c(173750,243250),y=c(Min-(Min*0.1),Min-(Min*0.1)),col="red",lwd=2)
 lines(x=c(312750,382250),y=c(Min-(Min*0.1),Min-(Min*0.1)),col="red",lwd=2)
