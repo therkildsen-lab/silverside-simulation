@@ -3,3 +3,8 @@
 *.RData
 *.vcf*
 .Rhistory
+*/*.vcf
+*/*.tree
+*/*.RData
+*/*.vcf*
+*/.Rhistory
