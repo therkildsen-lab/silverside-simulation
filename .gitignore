@@ -2,9 +2,9 @@
 *.tree
 *.RData
 *.vcf*
-.Rhistory
+*.Rhistory
 */*.vcf
 */*.tree
 */*.RData
 */*.vcf*
-*/.Rhistory
+*/*.Rhistory
