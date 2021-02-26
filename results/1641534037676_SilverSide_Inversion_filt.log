@@ -1,0 +1,12 @@
+
+VCFtools - 0.1.17
+(C) Adam Auton and Anthony Marcketta 2009
+
+Parameters as interpreted:
+	--vcf 1641534037676_SilverSide_Inversion.vcf
+	--recode-INFO-all
+	--maf 0.1
+	--out 1641534037676_SilverSide_Inversion_filt
+	--recode
+
+Error: Can't determine file type of 1641534037676_SilverSide_Inversion.vcf

@@ -1,0 +1,44 @@
+// Silverside_inversion.slim
+// Áki Jarl Láruson
+// Dec. 04 2020
+// Mod. Feb 16 2021
+// Code which simulates two highly connected populations of Atlantic Silverside fish, with only neutral variation
+
+initialize() {
+	defineConstant("C_num", 6);							// number of chromosomes
+	defineConstant("C_lengths", rep(139000, C_num));	// lengths for each chromosome
+	initializeMutationRate(1e-7);
+	initializeMutationType("m1", 0.5, "f", 0.0);  // neutral mutations
+	initializeGenomicElementType("g1", m1, 1);
+	initializeGenomicElement(g1, 0, sum(C_lengths[0:(C_num - 1)])-1);
+	rates = c(1e-5, 0.5, 1e-5, 0.5, 1e-5, 0.5, 1e-5, 0.5, 1e-6, 0.5, 1e-4);
+	ends = repEach(cumSum(C_lengths), 2);
+	ends = ends[0:(length(ends) - 2)];
+	ends = ends - c(rep(c(1,0), C_num-1), 1);
+	initializeRecombinationRate(rates, ends);
+	initializeSex("A");
+
+}
+1 {
+	sim.addSubpop("p1", 5000);
+	sim.addSubpop("p2", 5000);
+	p1.setMigrationRates(p2, 0.1);
+	p2.setMigrationRates(p1, 0.1);
+}
+
+
+1: late() {
+	if (sim.generation % 1000 == 0){
+		cat("Generations: " + sim.generation + "\n");
+	}
+}
+
+65000 late() {
+	//one = sample(p1.individuals, 100, F);
+	//one = p1.individuals;
+	//two = sample(p2.individuals, 100, F);
+	//two = p2.individuals;
+	//sim.treeSeqOutput(paste(getSeed(),"_SilverSide_Inversion.tree", sep=""));
+	sim.subpopulations.genomes.outputVCF(paste(getSeed(),"_fullNeut_SilverSide_Inversion.vcf", sep=""));
+	//two.genomes.outputVCF(paste(getSeed(),"_P2_fullNeut_SilverSide_Inversion.vcf", sep=""));
+}
