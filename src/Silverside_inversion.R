@@ -5,14 +5,14 @@ require(OutFLANK)
 require(qqman)
 require(RColorBrewer)
 
-ssvcf<-read.vcfR("results/1641534037676_SilverSide_Inversion_filt.recode.vcf")
+ssvcf<-read.vcfR("results/1693883279556_SilverSide_Inversion_filt.recode.vcf")
 #ssvcf <- read.vcfR("results/1615143132138_SilverSide_Inversion.vcf")
 #ssvcf <- read.vcfR("1826701057597_fullNeut_filt_SilverSide_Inversion.recode.vcf")
-grep("MT=[2-4]",ssvcf@fix[,8])
-ssvcf_clean <- ssvcf[-grep("MT=[2-4]",ssvcf@fix[,8])]
+grep("MT=[2]",ssvcf@fix[,8])
+ssvcf_clean <- ssvcf[-grep("MT=[2]",ssvcf@fix[,8])]
 
 #if neutral (i.e. no MT>1) then the below command will remove everything
-ssvcf_clean <- ssvcf
+#ssvcf_clean <- ssvcf
 
 geno <- ssvcf_clean@gt[,-1] # Remove 1st column, which is 'Format'
 position <- as.numeric(getPOS(ssvcf_clean)) # Positions in bp
@@ -192,7 +192,7 @@ Pfst$P2AlleleFreq <- Pop2_afreq
 
 Pfst$Position <- position
 Pfst$Chrom <- position_inv
-#write.csv(Pfst, "1638581825500_Pfst.csv", row.names = F)
+#write.csv(Pfst, "results/1693883279556_Pfst.csv", row.names = F)
 
 
 

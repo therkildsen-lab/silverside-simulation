@@ -4,31 +4,33 @@
 // Code which simulates two highly connected populations of Atlantic Silverside fish with inversions of different ages, and varying recombination rates in the neutral background genome 
 
 initialize() {
-	defineConstant("MY_SEED", getSeed());
+	//defineConstant("MY_SEED", getSeed());
+	defineConstant("MY_SEED", 1693305219366);
 	defineConstant("C_num", 6);							// number of chromosomes
 	defineConstant("C_lengths", rep(139000, C_num));	// lengths for each chromosome
 	initializeMutationRate(1e-7);
 	initializeMutationType("m1", 0.5, "f", 0.0);  // neutral mutations
-	initializeMutationType("m2", 1.0, "f", 0.2);  // inversion marker
-	initializeMutationType("m3", 1.0, "f", 0.2);  // inversion marker
-	initializeMutationType("m4", 1.0, "f", 0.2);  // inversion marker
+	initializeMutationType("m2", 1.0, "f", 0.3);  // inversion marker
+	//initializeMutationType("m3", 1.0, "f", 0.2);  // inversion marker
+	//initializeMutationType("m4", 1.0, "f", 0.2);  // inversion marker
 	m2.color = "red";
-	m3.color = "blue";
-	m4.color = "green";
-	initializeGenomicElementType("g1", c(m1,m2,m3,m4), c(1.0,0,0,0));
+	//m3.color = "blue";
+	//m4.color = "green";
+	//initializeGenomicElementType("g1", c(m1,m2,m3,m4), c(1.0,0,0,0));
+	initializeGenomicElementType("g1", c(m1,m2), c(1.0,0));
 	initializeGenomicElement(g1, 0, sum(C_lengths[0:(C_num - 1)])-1);
 	m2.convertToSubstitution = F;
-	m3.convertToSubstitution = F;
-	m4.convertToSubstitution = F;
+	//m3.convertToSubstitution = F;
+	//m4.convertToSubstitution = F;
 	rates = c(1e-5, 0.5, 1e-5, 0.5, 1e-5, 0.5, 1e-5, 0.5, 1e-6, 0.5, 1e-4);
 	ends = repEach(cumSum(C_lengths), 2);
 	ends = ends[0:(length(ends) - 2)];
 	ends = ends - c(rep(c(1,0), C_num-1), 1);
 	initializeRecombinationRate(rates, ends);
-	defineConstant("Invers_1", 20000);
-	defineConstant("Invers_2", 32500);
-	defineConstant("Invers_3", 44000);
-	defineConstant("End_sim", 45000);
+	//defineConstant("Invers_1", 20000);
+	//defineConstant("Invers_2", 32500);
+	//defineConstant("Invers_3", 44000);
+	//defineConstant("End_sim", 45000);
 	initializeSex("A");
 	//initializeTreeSeq();
 }
@@ -50,8 +52,15 @@ initialize() {
 
 fitness(m2, p2) { return 0.0; }
 
+2 late() {
+		sim.readFromPopulationFile("tmp/" + MY_SEED + "_Gen40000_slim_temp.txt");
+		p1.setMigrationRates(p2, 0.1);
+		p2.setMigrationRates(p1, 0.1);
+		setSeed(getSeed() + 1);
+}
+
 40000: late() {
-//10: late() {
+	//10: late() {
 	if (size(sim.subpopulations.genomes.mutationsOfType(m2)) == 0)
 	{
 		// Stop at extinction
@@ -68,24 +77,24 @@ fitness(m2, p2) { return 0.0; }
 52500 late() {
 	//20 late() {
 	// give half the population the second inversion
-	//p1.genomes.addNewDrawnMutation(m3, 173749);
+	//p1.genomes.addNewDrawnMutation(m2, 173749);
 	target = sample(p1.genomes, 1);
-	target.addNewDrawnMutation(m3, 173749);
+	target.addNewDrawnMutation(m2, 173749);
 	sim.outputFull("tmp/" + MY_SEED + "_Gen52500_slim_temp.txt");
 }
 
-fitness(m3, p2) { return 0.0; }
+//fitness(m3, p2) { return 0.0; }
 
 52500: late() {
 	//20: late() {
-	if (size(sim.subpopulations.genomes.mutationsOfType(m3)) == 0)
+	if (size(unique(sim.subpopulations.genomes.mutationsOfType(m2).position)) < 2)
 	{
 		// Stop at extinction
 		catn("Extinction in generation " + sim.generation + ".");
 		//sim.simulationFinished();
 		sim.readFromPopulationFile("tmp/" + MY_SEED + "_Gen52500_slim_temp.txt");
-	        p1.setMigrationRates(p2, 0.1);
-	        p2.setMigrationRates(p1, 0.1);	
+		p1.setMigrationRates(p2, 0.1);
+		p2.setMigrationRates(p1, 0.1);
 		setSeed(getSeed() + 1);
 	}
 }
@@ -93,15 +102,15 @@ fitness(m3, p2) { return 0.0; }
 64000 late() {
 	//3000 late() {
 	// give half the population the third inversion
-	//p1.genomes.addNewDrawnMutation(m4, 312749);
+	//p1.genomes.addNewDrawnMutation(m2, 312749);
 	target = sample(p1.genomes, 1);
-	target.addNewDrawnMutation(m4, 312749);
+	target.addNewDrawnMutation(m2, 312749);
 	sim.outputFull("tmp/" + MY_SEED + "_Gen64000_slim_temp.txt");
 }
 
 64000: late() {
 	//3000: late() {
-	if (size(sim.subpopulations.genomes.mutationsOfType(m4)) == 0)
+	if (size(unique(sim.subpopulations.genomes.mutationsOfType(m2).position)) < 3)
 	{
 		// Stop at extinction
 		catn("Extinction in generation " + sim.generation + ".");
@@ -113,41 +122,30 @@ fitness(m3, p2) { return 0.0; }
 	}
 }
 
-fitness(m4, p2) { return 0.0; }
+//fitness(m4, p2) { return 0.0; }
 
 recombination() {
-	if (genome1.containsMarkerMutation(m2, 34749) ==
-		genome2.containsMarkerMutation(m2, 34749))
+	gen1 = genome1.mutationsOfType(m2);
+	gen2 = genome2.mutationsOfType(m2);
+	
+	homs = setSymmetricDifference(gen1,gen2);
+	
+	if (size(homs)==0)
 		return F;
 	
-	inInv = (breakpoints > 34749) & (breakpoints < 104249);
-	if (!any(inInv))
-		return F;
+	var = F;
 	
-	breakpoints = breakpoints[!inInv];
-	return T;
-	
-	if (genome1.containsMarkerMutation(m3, 173749) ==
-		genome2.containsMarkerMutation(m3, 173749))
-		return F;
-	
-	inInv = (breakpoints > 173749) & (breakpoints < 243249);
-	if (!any(inInv))
-		return F;
-	
-	breakpoints = breakpoints[!inInv];
-	return T;
-	
-	if (genome1.containsMarkerMutation(m4, 312749) ==
-		genome2.containsMarkerMutation(m4, 312749))
-		return F;
-	
-	inInv = (breakpoints > 312749) & (breakpoints < 382249);
-	if (!any(inInv))
-		return F;
-	
-	breakpoints = breakpoints[!inInv];
-	return T;
+	for (ind in homs){
+		start = ind.position;
+		end = start + 69500;
+		
+		inside = (breakpoints > start) & (breakpoints < end);
+		if (any(inside)){
+			breakpoints = breakpoints[!inside];
+			var = T;
+		}
+	}
+	return var;
 }
 
 1: late() {
