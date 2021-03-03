@@ -3,9 +3,11 @@
 *.RData
 *.vcf*
 *Rhistory
+*.csv
 /tmp/*
 */*.vcf
 */*.tree
 */*.RData
 */*.vcf*
 */*Rhistory
+*/*.csv
