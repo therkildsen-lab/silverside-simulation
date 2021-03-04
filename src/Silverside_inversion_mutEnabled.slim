@@ -4,8 +4,8 @@
 // Code which simulates two highly connected populations of Atlantic Silverside fish with inversions of different ages, and varying recombination rates in the neutral background genome 
 
 initialize() {
-	//defineConstant("MY_SEED", getSeed());
-	defineConstant("MY_SEED", 1693305219366);
+	defineConstant("MY_SEED", getSeed());
+	//defineConstant("MY_SEED", 1693305219366);
 	defineConstant("C_num", 6);							// number of chromosomes
 	defineConstant("C_lengths", rep(139000, C_num));	// lengths for each chromosome
 	initializeMutationRate(1e-7);
@@ -51,13 +51,6 @@ initialize() {
 }
 
 fitness(m2, p2) { return 0.0; }
-
-2 late() {
-		sim.readFromPopulationFile("tmp/" + MY_SEED + "_Gen40000_slim_temp.txt");
-		p1.setMigrationRates(p2, 0.1);
-		p2.setMigrationRates(p1, 0.1);
-		setSeed(getSeed() + 1);
-}
 
 40000: late() {
 	//10: late() {
