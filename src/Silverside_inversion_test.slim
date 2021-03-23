@@ -1,0 +1,179 @@
+// Silverside_inversion.slim
+// Áki Jarl Láruson
+// Dec. 04 2020
+// Code which simulates two highly connected populations of Atlantic Silverside fish with inversions of different ages, and varying recombination rates in the neutral background genome 
+
+initialize() {
+	defineConstant("MY_SEED", getSeed());
+	//defineConstant("MY_SEED", 1693305219366);
+	defineConstant("C_num", 6);							// number of chromosomes
+	defineConstant("C_lengths", rep(139000, C_num));	// lengths for each chromosome
+	initializeMutationRate(0);
+	initializeMutationType("m1", 0.5, "f", 0.0);  // neutral mutations
+	initializeMutationType("m2", 1.0, "f", 0.3);  // inversion marker
+	//initializeMutationType("m3", 1.0, "f", 0.2);  // inversion marker
+	//initializeMutationType("m4", 1.0, "f", 0.2);  // inversion marker
+	m2.color = "red";
+	//m3.color = "blue";
+	//m4.color = "green";
+	//initializeGenomicElementType("g1", c(m1,m2,m3,m4), c(1.0,0,0,0));
+	initializeGenomicElementType("g1", c(m1,m2), c(1.0,0));
+	initializeGenomicElement(g1, 0, sum(C_lengths[0:(C_num - 1)])-1);
+	m2.convertToSubstitution = F;
+	//m3.convertToSubstitution = F;
+	//m4.convertToSubstitution = F;
+	rates = c(1e-5, 0.5, 1e-5, 0.5, 1e-5, 0.5, 1e-5, 0.5, 1e-6, 0.5, 1e-4);
+	ends = repEach(cumSum(C_lengths), 2);
+	ends = ends[0:(length(ends) - 2)];
+	ends = ends - c(rep(c(1,0), C_num-1), 1);
+	initializeRecombinationRate(rates, ends);
+	//defineConstant("Invers_1", 20000);
+	//defineConstant("Invers_2", 32500);
+	//defineConstant("Invers_3", 44000);
+	//defineConstant("End_sim", 45000);
+	initializeSex("A");
+	//initializeTreeSeq();
+}
+1 {
+	sim.addSubpop("p1", 1250);
+	sim.addSubpop("p2", 1250);
+	sim.addSubpop("p3", 1250);
+	sim.addSubpop("p4", 1250);
+	sim.addSubpop("p5", 1250);
+	sim.addSubpop("p6", 1250);
+	sim.addSubpop("p7", 1250);
+	sim.addSubpop("p8", 1250);
+	p1.setMigrationRates(p2, 0.1);
+	//p2.setMigrationRates(p1, 0.1);
+	p2.setMigrationRates(c(p1,p3),c(0.1,0.1));
+	p3.setMigrationRates(c(p2,p4),c(0.1,0.1));
+	//p4.setMigrationRates(p3, 0.1);
+	p4.setMigrationRates(c(p3,p5),c(0.1,0.1));
+	p5.setMigrationRates(c(p4,p6),c(0.1,0.1));
+	p6.setMigrationRates(c(p5,p7),c(0.1,0.1));
+	p7.setMigrationRates(c(p6,p8),c(0.1,0.1));
+	p8.setMigrationRates(p7, 0.1);
+}
+
+10 late(){
+	//40000 late(){
+	// give half the population the first inversion
+	//p1.genomes.addNewDrawnMutation(m2, 34749);
+	target = sample(p1.genomes, 1);
+	target.addNewDrawnMutation(m2, 34749);
+	//sim.outputFull("tmp/" + MY_SEED + "_Gen40000_slim_temp.txt");
+}
+
+fitness(m2, p5) { return 0.9; }
+fitness(m2, p6) { return 0.9; }
+fitness(m2, p7) { return 0.9; }
+fitness(m2, p8) { return 0.9; }
+
+//40000: late() {
+//	//10: late() {
+//	if (size(sim.subpopulations.genomes.mutationsOfType(m2)) == 0)
+//	{
+//		// Stop at extinction
+//		catn("Extinction in generation " + sim.generation + ".");
+//		//sim.simulationFinished();
+//		sim.readFromPopulationFile("tmp/" + MY_SEED + "_Gen40000_slim_temp.txt");
+//		p1.setMigrationRates(p2, 0.1);
+//		p2.setMigrationRates(p1, 0.1);
+//		setSeed(getSeed() + 1);
+//	}
+//}
+
+//12500 late() {
+//52500 late() {
+20 late() {
+	// give half the population the second inversion
+	//p1.genomes.addNewDrawnMutation(m2, 173749);
+	target = sample(p1.genomes, 1);
+	target.addNewDrawnMutation(m2, 173749);
+	//sim.outputFull("tmp/" + MY_SEED + "_Gen52500_slim_temp.txt");
+}
+
+//fitness(m3, p2) { return 0.0; }
+
+//52500: late() {
+//	//20: late() {
+//	if (size(unique(sim.subpopulations.genomes.mutationsOfType(m2).position)) < 2)
+//	{
+//		// Stop at extinction
+//		catn("Extinction in generation " + sim.generation + ".");
+//		//sim.simulationFinished();
+//		sim.readFromPopulationFile("tmp/" + MY_SEED + "_Gen52500_slim_temp.txt");
+//		p1.setMigrationRates(p2, 0.1);
+//		p2.setMigrationRates(p1, 0.1);
+//		setSeed(getSeed() + 1);
+//	}
+//}
+//24000 late() {
+//64000 late() {
+30 late() {
+	// give half the population the third inversion
+	//p1.genomes.addNewDrawnMutation(m2, 312749);
+	target = sample(p1.genomes, 1);
+	target.addNewDrawnMutation(m2, 312749);
+	//sim.outputFull("tmp/" + MY_SEED + "_Gen64000_slim_temp.txt");
+}
+
+//64000: late() {
+//	//3000: late() {
+//	if (size(unique(sim.subpopulations.genomes.mutationsOfType(m2).position)) < 3)
+//	{
+//		// Stop at extinction
+//		catn("Extinction in generation " + sim.generation + ".");
+//		//sim.simulationFinished();
+//		sim.readFromPopulationFile("tmp/" + MY_SEED + "_Gen64000_slim_temp.txt");
+//		p1.setMigrationRates(p2, 0.1);
+//		p2.setMigrationRates(p1, 0.1);
+//		setSeed(getSeed() + 1);
+//	}
+//}
+
+//fitness(m4, p2) { return 0.0; }
+
+recombination() {
+	gen1 = genome1.mutationsOfType(m2);
+	gen2 = genome2.mutationsOfType(m2);
+	
+	homs = setSymmetricDifference(gen1,gen2);
+	
+	if (size(homs)==0)
+		return F;
+	
+	var = F;
+	
+	for (ind in homs){
+		start = ind.position;
+		end = start + 69500;
+		
+		inside = (breakpoints > start) & (breakpoints < end);
+		if (any(inside)){
+			breakpoints = breakpoints[!inside];
+			var = T;
+		}
+	}
+	return var;
+}
+
+1: late() {
+	if (sim.generation % 1000 == 0){
+		cat("Generations: " + sim.generation + "\n");
+	}
+}
+
+
+//25000 late() {
+65000 late() {
+	//4000 late() {
+	sim.subpopulations.genomes.outputVCF(paste("results/", getSeed(),"_SilverSide_Inversion.vcf", sep=""));
+}
+
+//1 {
+//	sim.rescheduleScriptBlock(s1, start=Invers_1, end=Invers_1);
+//	sim.rescheduleScriptBlock(s2, start=Invers_2, end=Invers_2);
+//	sim.rescheduleScriptBlock(s3, start=Invers_3, end=Invers_3);
+//	sim.rescheduleScriptBlock(s4, start=End_sim, end=End_sim);
+//}

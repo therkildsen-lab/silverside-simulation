@@ -5,13 +5,11 @@ require(OutFLANK)
 require(qqman)
 require(RColorBrewer)
 
-ssvcf<-read.vcfR("results/1708979681024_SilverSide_Inversion_filt.recode.vcf")
-#ssvcf <- read.vcfR("results/1615143132138_SilverSide_Inversion.vcf")
-#ssvcf <- read.vcfR("1826701057597_fullNeut_filt_SilverSide_Inversion.recode.vcf")
+ssvcf<-read.vcfR("results/1619997155345_SilverSide_Inversion_filt.recode.vcf")
+
 grep("MT=[2]",ssvcf@fix[,8])
 #ssvcf_clean <- ssvcf[-grep("MT=[2]",ssvcf@fix[,8])]
 
-#if neutral (i.e. no MT>1) then the below command will remove everything
 ssvcf_clean <- ssvcf
 
 geno <- ssvcf_clean@gt[,-1] # Remove 1st column, which is 'Format'
@@ -33,9 +31,16 @@ Gt<-t(G1)
 colnames(Gt)<-paste("M",position,sep="")
 
 PopsALL <- NULL
-for(j in rep(1:2)){
+for(j in rep(1:8)){
   for(i in rep(j,5000)){
     PopsALL <- c(PopsALL,i)
+  }
+}
+
+PopsTwo <- NULL
+for(j in rep(1:2)){
+  for(i in rep(j,5000)){
+    PopsTwo <- c(PopsTwo,i)
   }
 }
 
@@ -162,43 +167,101 @@ WC_FST_Diploids_2Alleles2 <- function (Sample_Mat)
                                                                        bNoCorr + cNoCorr), meanAlleleFreq = p_ave))
 }
 
-Pfst<-MakeDiploidFSTMat_2(SNPmat = Gtf, locusNames = colnames(Gtf), popNames = PopsALL)
+#Gtf_2<-Gtf[c(1:5000, 35001:40000),]
+#Gtf_2<-Gtf[c(15001:20000, 20001:25000),]
+#Gtf_2<-Gtf[c(1:5000, 5001:10000),]
+Gtf_2<-Gtf[c(1:5000, 10001:15000),]
+#Gtf_2<-Gtf[c(1:1250, 1251:2500),]
+#Gtf_2<-Gtf[c(7501:8750,8751:10000),]
+
+Pfst_2<-MakeDiploidFSTMat_2(SNPmat = Gtf_2, locusNames = colnames(Gtf_2), popNames = PopsTwo)
+
+#Pfst_ends <- Pfst_2
+#Pfst_mid <- Pfst_2
+
+#Pfst<-MakeDiploidFSTMat_2(SNPmat = Gtf, locusNames = colnames(Gtf), popNames = PopsALL)
 #write.csv(Pfst,"1615143132138_Pfst.csv",row.names = F)
 # Pfst<-read.csv("1826581014997_Pfst.csv")
 # Pfst<-read.csv("1826701057597_neut_Pfst.csv")
 
-(Max <- max(Pfst$FST, na.rm=T))
-(Min <- min(Pfst$FST, na.rm = T))
-CHR_data <- data.frame (SNP = Pfst$LocusName , CHR=position_inv, BP= position_scaled, P=Pfst$FST)
+(Max2 <- max(Pfst_2$FST, na.rm=T))
+(Min2 <- min(Pfst_2$FST, na.rm = T))
+CHR_data2 <- data.frame (SNP = Pfst_2$LocusName , CHR=position_inv, BP= position_scaled, P=Pfst_2$FST)
+
+# (Max <- max(Pfst$FST, na.rm=T))
+# (Min <- min(Pfst$FST, na.rm = T))
+#CHR_data <- data.frame (SNP = Pfst$LocusName , CHR=position_inv, BP= position_scaled, P=Pfst$FST)
+
 # Plot !
-manhattan(CHR_data , ylim=c(Min-(Min*0.1),Max+(Max*0.1)), suggestiveline = F, genomewideline = F , logp=F, col=brewer.pal(5, "Set2") , main="Silverside simulation\nMAF=0.1, m=0.1, r=(1e-5)x4, 1e-6, 1e-4", ylab=expression(paste("F"[ST])))
-lines(x=c(34750,104250),y=c(Min-(Min*0.1),Min-(Min*0.1)),col="red",lwd=2)
-lines(x=c(173750,243250),y=c(Min-(Min*0.1),Min-(Min*0.1)),col="red",lwd=2)
-lines(x=c(312750,382250),y=c(Min-(Min*0.1),Min-(Min*0.1)),col="red",lwd=2)
+#manhattan(CHR_data , ylim=c(Min2-(Min2*0.1),Max2+(Max2*0.1)), suggestiveline = F, genomewideline = F , logp=F, col=brewer.pal(5, "Set2") , main="Silverside simulation\nm=0.1, r=(1e-5)x4, 1e-6, 1e-4", ylab=expression(paste("F"[ST])))
+manhattan(CHR_data2 , ylim=c(Min2-(Min2*0.1),Max2+(Max2*0.1)), suggestiveline = F, genomewideline = F , logp=F, col=brewer.pal(5, "Set2") , main="Silverside simulation\nMAF=0.1, m=0.1, r=(1e-5)x4, 1e-6, 1e-4", ylab=expression(paste("F"[ST])))
+#manhattan(CHR_data2 , ylim=c(Min2-(Min2*0.1),Max2+(Max2*0.1)), suggestiveline = F, genomewideline = F , logp=F, col=brewer.pal(5, "Set2") , main="Silverside simulation\nMAF=0.1, m=0.1, r=(1e-5)x4, 1e-6, 1e-4", ylab=expression(paste("F"[ST])))
+lines(x=c(34750,104250),y=c(Min2-(Min2*0.1),Min2-(Min2*0.1)),col="red",lwd=2)
+lines(x=c(173750,243250),y=c(Min2-(Min2*0.1),Min2-(Min2*0.1)),col="red",lwd=2)
+lines(x=c(312750,382250),y=c(Min2-(Min2*0.1),Min2-(Min2*0.1)),col="red",lwd=2)
 abline(v=c(34750,104250,173750,243250,312750,382250), col="red")
+
+# manhattan(CHR_data , ylim=c(Min-(Min*0.1),Max+(Max*0.1)), suggestiveline = F, genomewideline = F , logp=F, col=brewer.pal(5, "Set2") , main="Silverside simulation\nMAF=0.1, m=0.1, r=(1e-5)x4, 1e-6, 1e-4", ylab=expression(paste("F"[ST])))
+# lines(x=c(34750,104250),y=c(Min-(Min*0.1),Min-(Min*0.1)),col="red",lwd=2)
+# lines(x=c(173750,243250),y=c(Min-(Min*0.1),Min-(Min*0.1)),col="red",lwd=2)
+# lines(x=c(312750,382250),y=c(Min-(Min*0.1),Min-(Min*0.1)),col="red",lwd=2)
+# abline(v=c(34750,104250,173750,243250,312750,382250), col="red")
  
 Pop1_afreq<-rowSums(G1[,1:5000])/(2*ncol(G1[,1:5000]))
-
 Pop1_afreq<-data.frame(Pop1_afreq)
-#rownames(Pop1_afreq)<-paste("M",position,sep="")
 
 Pop2_afreq<-rowSums(G1[,5001:10000])/(2*ncol(G1[,5001:10000]))
-
 Pop2_afreq<-data.frame(Pop2_afreq)
-#rownames(Pop2_afreq)<-paste("M",position,sep="")
+
+Pop3_afreq<-rowSums(G1[,10001:15000])/(2*ncol(G1[,10001:15000]))
+Pop3_afreq<-data.frame(Pop3_afreq)
+
+Pop4_afreq<-rowSums(G1[,15001:20000])/(2*ncol(G1[,15001:20000]))
+Pop4_afreq<-data.frame(Pop4_afreq)
+
+Pop5_afreq<-rowSums(G1[,20001:25000])/(2*ncol(G1[,20001:25000]))
+Pop5_afreq<-data.frame(Pop5_afreq)
+
+Pop6_afreq<-rowSums(G1[,25001:30000])/(2*ncol(G1[,25001:30000]))
+Pop6_afreq<-data.frame(Pop6_afreq)
+
+Pop7_afreq<-rowSums(G1[,30001:35000])/(2*ncol(G1[,30001:35000]))
+Pop7_afreq<-data.frame(Pop7_afreq)
+
+Pop8_afreq<-rowSums(G1[,35001:40000])/(2*ncol(G1[,35001:40000]))
+Pop8_afreq<-data.frame(Pop8_afreq)
 
 Pfst$P1AlleleFreq <- Pop1_afreq
 Pfst$P2AlleleFreq <- Pop2_afreq
+Pfst$P3AlleleFreq <- Pop3_afreq
+Pfst$P4AlleleFreq <- Pop4_afreq
+Pfst$P5AlleleFreq <- Pop5_afreq
+Pfst$P6AlleleFreq <- Pop6_afreq
+Pfst$P7AlleleFreq <- Pop7_afreq
+Pfst$P8AlleleFreq <- Pop8_afreq
 
 Pfst$Position <- position
 Pfst$Chrom <- position_inv
-#write.csv(Pfst, "results/1693883279556_Pfst.csv", row.names = F)
+
+Pfst_2$P1AlleleFreq <- Pop1_afreq
+Pfst_2$P2AlleleFreq <- Pop2_afreq
+Pfst_2$P3AlleleFreq <- Pop3_afreq
+Pfst_2$P4AlleleFreq <- Pop4_afreq
+Pfst_2$P5AlleleFreq <- Pop5_afreq
+Pfst_2$P6AlleleFreq <- Pop6_afreq
+Pfst_2$P7AlleleFreq <- Pop7_afreq
+Pfst_2$P8AlleleFreq <- Pop8_afreq
+
+Pfst_2$Position <- position
+Pfst_2$Chrom <- position_inv
+#write.csv(Pfst, "results/chain_all_Pfst.csv", row.names = F)
+
+
+
 
 Pfst[Pfst$Position==34750,]
 Pfst[Pfst$Position==173750,]
 Pfst[Pfst$Position==312750,]
-
-
 
 
 SNPmat=Gtf

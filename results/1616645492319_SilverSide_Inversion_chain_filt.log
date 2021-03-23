@@ -1,0 +1,15 @@
+
+VCFtools - 0.1.17
+(C) Adam Auton and Anthony Marcketta 2009
+
+Parameters as interpreted:
+	--vcf results/1616645492319_SilverSide_Inversion_chain.vcf
+	--recode-INFO-all
+	--maf 0.1
+	--out results/1616645492319_SilverSide_Inversion_chain_filt
+	--recode
+
+After filtering, kept 10000 out of 10000 Individuals
+Outputting VCF file...
+After filtering, kept 19918 out of a possible 47382 Sites
+Run Time = 105.00 seconds
