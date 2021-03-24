@@ -8,6 +8,7 @@ initialize() {
 	//defineConstant("MY_SEED", 1693305219366);
 	defineConstant("C_num", 6);							// number of chromosomes
 	defineConstant("C_lengths", rep(139000, C_num));	// lengths for each chromosome
+	defineConstant("popSize", 500);	
 	initializeMutationRate(1e-7);
 	initializeMutationType("m1", 0.5, "f", 0.0);  // neutral mutations
 	initializeMutationType("m2", 1.0, "f", 0.1);  // inversion marker
@@ -35,14 +36,14 @@ initialize() {
 	//initializeTreeSeq();
 }
 1 {
-	sim.addSubpop("p1", 5000);
-	sim.addSubpop("p2", 5000);
-	sim.addSubpop("p3", 5000);
-	sim.addSubpop("p4", 5000);
-	sim.addSubpop("p5", 5000);
-	sim.addSubpop("p6", 5000);
-	sim.addSubpop("p7", 5000);
-	sim.addSubpop("p8", 5000);
+	sim.addSubpop("p1", popSize);
+	sim.addSubpop("p2", popSize);
+	sim.addSubpop("p3", popSize);
+	sim.addSubpop("p4", popSize);
+	sim.addSubpop("p5", popSize);
+	sim.addSubpop("p6", popSize);
+	sim.addSubpop("p7", popSize);
+	sim.addSubpop("p8", popSize);
 	p1.setMigrationRates(p2, 0.1);
 	p2.setMigrationRates(c(p1,p3),c(0.1,0.1));
 	p3.setMigrationRates(c(p2,p4),c(0.1,0.1));
@@ -54,6 +55,7 @@ initialize() {
 }
 
 40000 late(){
+//10 late(){
 	target = sample(p1.genomes, 1);
 	target.addNewDrawnMutation(m2, 34749);
 	sim.outputFull("tmp/" + MY_SEED + "_Gen40000_slim_temp.txt");
@@ -69,7 +71,8 @@ fitness(m2, p8) { return 1.0; }
 
 40000: late() {
 	//10: late() {
-	if (size(sim.subpopulations.genomes.mutationsOfType(m2)) == 0)
+	if (size(unique(sim.subpopulations.genomes.mutationsOfType(m2).position)) < 1)
+	//if (size(sim.subpopulations.genomes.mutationsOfType(m2)) == 0)
 	{
 		// Stop at extinction
 		catn("Extinction in generation " + sim.generation + ".");
