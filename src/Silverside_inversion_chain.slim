@@ -9,6 +9,7 @@ initialize() {
 	defineConstant("C_num", 6);							// number of chromosomes
 	defineConstant("C_lengths", rep(139000, C_num));	// lengths for each chromosome
 	defineConstant("popSize", 500);	
+	defineConstant("malAdapt", 0.9);
 	initializeMutationRate(1e-7);
 	initializeMutationType("m1", 0.5, "f", 0.0);  // neutral mutations
 	initializeMutationType("m2", 1.0, "f", 0.1);  // inversion marker
@@ -54,22 +55,24 @@ initialize() {
 	p8.setMigrationRates(p7, 0.1);
 }
 
-40000 late(){
+//40000 late(){
+4000 late(){
 //10 late(){
 	target = sample(p1.genomes, 1);
 	target.addNewDrawnMutation(m2, 34749);
 	sim.outputFull("tmp/" + MY_SEED + "_Gen40000_slim_temp.txt");
 }
 
-fitness(m2, p2) { return 1.0; }
-fitness(m2, p3) { return 1.0; }
-fitness(m2, p4) { return 1.0; }
-fitness(m2, p5) { return 1.0; }
-fitness(m2, p6) { return 1.0; }
-fitness(m2, p7) { return 1.0; }
-fitness(m2, p8) { return 1.0; }
+fitness(m2, p2) { return malAdapt; }
+fitness(m2, p3) { return malAdapt; }
+fitness(m2, p4) { return malAdapt; }
+fitness(m2, p5) { return malAdapt; }
+fitness(m2, p6) { return malAdapt; }
+fitness(m2, p7) { return malAdapt; }
+fitness(m2, p8) { return malAdapt; }
 
-40000: late() {
+//40000: late() {
+4000: late() {
 	//10: late() {
 	if (size(unique(sim.subpopulations.genomes.mutationsOfType(m2).position)) < 1)
 	//if (size(sim.subpopulations.genomes.mutationsOfType(m2)) == 0)
@@ -90,8 +93,8 @@ fitness(m2, p8) { return 1.0; }
 	}
 }
 
-//12500 late() {
-52500 late() {
+16500 late() {
+//52500 late() {
 	//20 late() {
 	// give half the population the second inversion
 	//p1.genomes.addNewDrawnMutation(m2, 173749);
@@ -102,7 +105,8 @@ fitness(m2, p8) { return 1.0; }
 
 //fitness(m3, p2) { return 0.0; }
 
-52500: late() {
+16500: late() {
+//52500: late() {
 	//20: late() {
 	if (size(unique(sim.subpopulations.genomes.mutationsOfType(m2).position)) < 2)
 	{
@@ -121,8 +125,8 @@ fitness(m2, p8) { return 1.0; }
 		setSeed(getSeed() + 1);
 	}
 }
-//24000 late() {
-64000 late() {
+28000 late() {
+//64000 late() {
 	//3000 late() {
 	// give half the population the third inversion
 	//p1.genomes.addNewDrawnMutation(m2, 312749);
@@ -131,8 +135,8 @@ fitness(m2, p8) { return 1.0; }
 	sim.outputFull("tmp/" + MY_SEED + "_Gen64000_slim_temp.txt");
 }
 
-64000: late() {
-	//3000: late() {
+//64000: late() {
+28000: late() {
 	if (size(unique(sim.subpopulations.genomes.mutationsOfType(m2).position)) < 3)
 	{
 		// Stop at extinction
@@ -184,8 +188,8 @@ recombination() {
 }
 
 
-//25000 late() {
-65000 late() {
+29000 late() {
+//65000 late() {
 	//4000 late() {
 	sim.subpopulations.genomes.outputVCF(paste("results/", getSeed(),"_SilverSide_Inversion.vcf", sep=""));
 }
